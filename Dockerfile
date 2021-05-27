@@ -32,16 +32,34 @@ ENV SPARK_HOME=/opt/spark
 # Extend PATH environment variable
 ENV PATH=${PATH}:${SPARK_HOME}/bin
 
-FROM sparkbuilder AS spark-with-s3-gcp
+# Create the application directory
+RUN mkdir -p /app
+
+FROM sparkbuilder AS spark-with-s3-gcs
 
 # Download S3 and GCS jars
 RUN curl -L https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-aws/${HADOOP_AWS_VERSION}/hadoop-aws-${HADOOP_AWS_VERSION}.jar -o ${SPARK_HOME}/jars/hadoop-aws-${HADOOP_AWS_VERSION}.jar \
     && curl -L https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk-bundle/${AWS_SDK_BUNDLE_VERSION}/aws-java-sdk-bundle-${AWS_SDK_BUNDLE_VERSION}.jar -o ${SPARK_HOME}/jars/aws-java-sdk-bundle-${AWS_SDK_BUNDLE_VERSION}.jar \
     && curl -L https://repo1.maven.org/maven2/com/google/cloud/bigdataoss/gcs-connector/${GCS_CONNECTOR_VERSION}/gcs-connector-${GCS_CONNECTOR_VERSION}-shaded.jar -o ${SPARK_HOME}/jars/gcs-connector-${GCS_CONNECTOR_VERSION}-shaded.jar
 
-FROM spark-with-s3-gcp AS spark-with-jar
+FROM spark-with-s3-gcs AS spark-with-jar
 
-RUN mkdir -p /app
-
+WORKDIR /app
 # Add application jar in /app
 # ADD your-app.jar /app
+
+FROM spark-with-jar AS spark-with-python
+
+ENV PYTHONPATH=$SPARK_HOME/python/:$PYTHONPATH
+
+RUN apt-get update -y \
+    && apt-get install -y python3 python3-pip \
+    && pip3 install --upgrade pip setuptools \
+    # Removed the .cache to save space
+    && rm -r /root/.cache && rm -rf /var/cache/apt/*
+
+WORKDIR /app
+
+# ADD requirements.txt .
+# ADD . .
+# RUN pip3 install -r requirements.txt

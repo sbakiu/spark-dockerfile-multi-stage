@@ -1,5 +1,5 @@
 # spark-dockerfile-multi-stage
-Making use of Docker best practices, this repo uses a multi stage Dockerfile for Spark jobs. It is meant to be used as a starting point for projects deploying Apache Spark jobs in Kubernetes clusters. It can be used with `spark-submit` command or with `spark-operator`. Since many of the deployments are running in cloud environments, the `jars` to allow `S3` and `GCS` access are included
+Making use of Docker best practices, this repo uses a multi stage Dockerfile for Spark jobs. It is meant to be used as a starting point for projects deploying Apache Spark jobs in Kubernetes clusters. It can be used with `spark-submit` command or with `spark-operator`. Since many of the deployments are running in cloud environments, the `jars` to allow `S3` and `GCS` access are included.
 
 ## Build
 Build the docker image by running:
