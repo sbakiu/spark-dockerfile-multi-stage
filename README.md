@@ -4,7 +4,7 @@ Making use of Docker best practices, this repo uses a multi stage Dockerfile for
 ## Build
 Build the docker image by running:
 ```
-docker run -t my-spark-image:latest .
+docker build -t my-spark-image:latest .
 ```
 
 To override Spark or Hadoop verson, in the build stage
