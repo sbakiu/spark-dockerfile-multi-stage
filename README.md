@@ -41,6 +41,3 @@ spark-submit \
     --conf spark.kubernetes.container.image=<spark-image> \
     local:///app/src/main/pi.py
 ```
-## ToDo
-
-Add `py-spark` support
