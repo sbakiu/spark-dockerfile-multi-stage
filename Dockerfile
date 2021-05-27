@@ -32,7 +32,6 @@ ENV SPARK_HOME=/opt/spark
 # Extend PATH environment variable
 ENV PATH=${PATH}:${SPARK_HOME}/bin
 
-
 FROM sparkbuilder AS spark-with-s3-gcp
 
 # Download S3 and GCS jars
