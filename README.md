@@ -13,6 +13,8 @@ docker build --build-arg HADOOP_VERSION_DEFAULT=2.7 -t my-spark-image:latest .
 ```
 
 ## Usage
+
+### Scala/Java
 The application `jar` file should be added in `/app` directory.
 The `spark-submit` command looks like this:
 ```
@@ -21,11 +23,24 @@ spark-submit \
     --deploy-mode cluster \
     --name spark-pi \
     --class org.apache.spark.examples.SparkPi \
-    --conf spark.executor.instances=5 \
+    --conf spark.executor.instances=1 \
     --conf spark.kubernetes.container.image=<spark-image> \
     local:///app/<jar-name>.jar
 ```
 
+### Python
+
+The application files should be added in `/app` directory.
+The `spark-submit` command looks like this:
+```
+spark-submit \
+    --master k8s://https://<k8s-apiserver-host>:<k8s-apiserver-port> \
+    --deploy-mode cluster \
+    --name spark-pi \
+    --conf spark.executor.instances=1 \
+    --conf spark.kubernetes.container.image=<spark-image> \
+    local:///app/src/main/pi.py
+```
 ## ToDo
 
 Add `py-spark` support
