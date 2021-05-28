@@ -1,4 +1,4 @@
-FROM openjdk:11-jre AS spark-base
+FROM openjdk:11-jre AS base
 
 # Define default Spark version
 ARG SPARK_VERSION_DEFAULT=3.1.1
@@ -18,6 +18,11 @@ ENV HADOOP_AWS_VERSION=${HADOOP_AWS_VERSION_DEFAULT}
 ENV AWS_SDK_BUNDLE_VERSION=${AWS_SDK_BUNDLE_VERSION_DEFAULT}
 ENV GCS_CONNECTOR_VERSION=${GCS_CONNECTOR_VERSION_DEFAULT}
 
+RUN apt-get update \
+    && apt-get install -y bash tini libc6 libpam-modules krb5-user libnss3 procps
+
+FROM base AS spark-base
+
 # Download and extract Spark
 RUN curl -L https://downloads.apache.org/spark/spark-${SPARK_VERSION}/spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz -o spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz \
     && tar -xvzf spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz \
@@ -25,6 +30,8 @@ RUN curl -L https://downloads.apache.org/spark/spark-${SPARK_VERSION}/spark-${SP
     && rm spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz
 
 COPY entrypoint.sh /opt/spark
+
+RUN chmod a+x /opt/spark/entrypoint.sh
 
 FROM spark-base AS sparkbuilder
 
@@ -49,5 +56,6 @@ FROM spark-with-s3-gcs AS spark-with-jar
 WORKDIR /app
 # Add application jar in /app
 # ADD your-app.jar /app
+USER root
 
 ENTRYPOINT [ "/opt/spark/entrypoint.sh" ]

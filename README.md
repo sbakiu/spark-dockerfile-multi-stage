@@ -38,6 +38,7 @@ spark-submit \
     --deploy-mode cluster \
     --name spark-pi \
     --conf spark.executor.instances=1 \
+    --conf spark.kubernetes.authenticate.driver.serviceAccountName=spark-sa \
     --conf spark.kubernetes.container.image=<spark-image> \
     local:///app/src/main/pi.py
 ```
@@ -70,6 +71,12 @@ docker run --rm -it --network=host alpine ash -c "apk add socat && socat TCP-LIS
 
 More info [here](https://minikube.sigs.k8s.io/docs/handbook/registry/)
 
+### Fix serivce account permissions
+For Spark to work, the service account running the appliaction needs to have permissions to start pods in the cluster. Permissions are added in the `rbac.yaml` file. Execute:
+```
+kubectl apply -f rbac.yaml
+```
+
 ### Building images
 Build Docker image:
 ```
@@ -90,6 +97,7 @@ spark-submit \
     --name spark-pi \
     --class org.apache.spark.examples.SparkPi \
     --conf spark.executor.instances=2 \
+    --conf spark.kubernetes.authenticate.driver.serviceAccountName=spark-sa \
     --conf spark.kubernetes.container.image=localhost:5000/spark-local \
     local:///opt/spark/examples/jars/spark-examples_2.12-3.1.1.jar
 ```
