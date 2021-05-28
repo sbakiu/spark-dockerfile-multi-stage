@@ -41,3 +41,54 @@ spark-submit \
     --conf spark.kubernetes.container.image=<spark-image> \
     local:///app/src/main/pi.py
 ```
+
+## Testing
+
+### Install minikube
+MacOS:
+```
+brew install minikube
+```
+
+### Install kubectl
+MacOS:
+```
+brew install kubectl
+```
+
+### Preconfiguration
+Start minikube cluster:
+```
+minikube start --insecure-registry "10.0.0.0/24" --memory 8192 --cpus 4
+minikube addons enable registry
+```
+
+Enable pushing images to `minikube` docker registry
+```
+docker run --rm -it --network=host alpine ash -c "apk add socat && socat TCP-LISTEN:5000,reuseaddr,fork TCP:$(minikube ip):5000"
+```
+
+More info [here](https://minikube.sigs.k8s.io/docs/handbook/registry/)
+
+### Building images
+Build Docker image:
+```
+docker build -t localhost:5000/spark-local -f Dockerfile .
+```
+
+Push image to registry:
+```
+docker push localhost:5000/spark-local
+```
+
+Run test application
+```
+spark-submit \
+    --master k8s://https://$(minikube ip):8443 \
+    --deploy-mode cluster \
+    --name spark-pi \
+    --class org.apache.spark.examples.SparkPi \
+    --conf spark.executor.instances=2 \
+    --conf spark.kubernetes.container.image=localhost:5000/spark-local \
+    local:///opt/spark/examples/jars/spark-examples_2.12-3.1.1.jar
+```

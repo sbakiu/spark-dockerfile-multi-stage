@@ -50,4 +50,20 @@ WORKDIR /app
 # Add application jar in /app
 # ADD your-app.jar /app
 
+FROM spark-with-jar AS spark-with-python
+
+ENV PYTHONPATH=$SPARK_HOME/python/:$PYTHONPATH
+
+RUN apt-get update -y \
+    && apt-get install -y python3 python3-pip \
+    && pip3 install --upgrade pip setuptools \
+    # Removed the .cache to save space
+    && rm -r /root/.cache && rm -rf /var/cache/apt/*
+
+WORKDIR /app
+
+# ADD requirements.txt .
+# ADD . .
+# RUN pip3 install -r requirements.txt
+
 ENTRYPOINT [ "/opt/spark/entrypoint.sh" ]
