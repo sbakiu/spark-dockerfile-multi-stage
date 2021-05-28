@@ -24,6 +24,7 @@ spark-submit \
     --name spark-pi \
     --class org.apache.spark.examples.SparkPi \
     --conf spark.executor.instances=1 \
+    --conf spark.kubernetes.authenticate.driver.serviceAccountName=spark-sa \
     --conf spark.kubernetes.container.image=<spark-image> \
     local:///app/<jar-name>.jar
 ```
@@ -78,9 +79,16 @@ kubectl apply -f rbac.yaml
 ```
 
 ### Building images
-Build Docker image:
+Build Docker image.
+
+Scala
 ```
 docker build -t localhost:5000/spark-local -f Dockerfile .
+```
+
+Python
+```
+docker build -t localhost:5000/spark-local-py -f Dockerfile-python .
 ```
 
 Push image to registry:
@@ -88,8 +96,8 @@ Push image to registry:
 docker push localhost:5000/spark-local
 ```
 
-### Run application
-Execute
+### Run Application Jar
+Execute Jar
 ```
 spark-submit \
     --master k8s://https://$(minikube ip):8443 \
@@ -100,4 +108,17 @@ spark-submit \
     --conf spark.kubernetes.authenticate.driver.serviceAccountName=spark-sa \
     --conf spark.kubernetes.container.image=localhost:5000/spark-local \
     local:///opt/spark/examples/jars/spark-examples_2.12-3.1.1.jar
+```
+
+### Run Python Application
+Execute `.py` file
+```
+spark-submit \
+    --master k8s://https://$(minikube ip):8443 \
+    --deploy-mode cluster \
+    --name spark-pi-py \
+    --conf spark.executor.instances=2 \
+    --conf spark.kubernetes.authenticate.driver.serviceAccountName=spark-sa \
+    --conf spark.kubernetes.container.image=localhost:5000/spark-local-py \
+    local:///opt/spark/examples/src/main/python/pi.py
 ```
