@@ -81,7 +81,8 @@ Push image to registry:
 docker push localhost:5000/spark-local
 ```
 
-Run test application
+### Run application
+Execute
 ```
 spark-submit \
     --master k8s://https://$(minikube ip):8443 \
