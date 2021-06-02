@@ -1,4 +1,5 @@
-FROM openjdk:11-jre AS base
+ARG JRE_VERSION=11-jre
+FROM openjdk:$JRE_VERSION AS base
 
 # Define default Spark version
 ARG SPARK_VERSION_DEFAULT=3.1.1
